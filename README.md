@@ -1,6 +1,10 @@
 # glitch_me
 Python module to add some distortion/glitch effects to images.
 
+## Dependencies
+- [Python 3](https://www.python.org/)
+- [Pillow 4.x](https://pypi.python.org/pypi/Pillow/)
+
 ## tl; dr
 ```
 git clone https://github.com/noahleigh/glitch_me.git
