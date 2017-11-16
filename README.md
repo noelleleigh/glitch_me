@@ -1,6 +1,8 @@
 # glitch_me
 Python module to add some distortion/glitch effects to images.
 
+Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
+
 ## Dependencies
 - [Python 3](https://www.python.org/)
 - [Pillow 4.x](https://pypi.python.org/pypi/Pillow/)
