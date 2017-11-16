@@ -24,11 +24,15 @@ def crop(im, box):
     return im.crop(box)
 
 
+def convert(im, mode):
+    return im.convert(mode)
+
+
 def split_channels(im, offset):
     bands = list(im.split())
     bands[0] = ImageChops.offset(bands[0], offset, 0)
-    bands[-1] = ImageChops.offset(bands[-1], -offset, 0)
-    merged = Image.merge('RGB', bands)
+    bands[2] = ImageChops.offset(bands[2], -offset, 0)
+    merged = Image.merge(im.mode, bands)
     return merged
 
 
