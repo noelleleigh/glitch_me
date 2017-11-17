@@ -18,7 +18,7 @@ python ./glitch_me image_folder/*.png output_folder
 
  - The `glitch_me` folder is a Python module, so that's what you pass to the `python` executible
  - `INPUT` is the path to the image you want to glitch, or a glob pattern to the images you want to glitch.
- - `OUPUT` is the path to the directory where you want the glitched images to be stored. The files will be named `{ORIGINAL_NAME}_glitch.{ORIGINAL_EXTENSION}`
+ - `OUPUT` is the path to the directory where you want the glitched images to be stored. The files will be named `{ORIGINAL_NAME}_glitch.png`
 
 ## Examples using the included transforms
 | Original | Glitched |

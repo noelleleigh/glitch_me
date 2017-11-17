@@ -16,7 +16,7 @@ def main(input_pattern, output_dir, transforms):
         im = Image.open(input_path)
         output = apply_transformations(im, transforms)
         basename = os.path.basename(input_path)
-        outname = '{}_glitch{}'.format(*os.path.splitext(basename))
+        outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
         output.save(os.path.join(output_dir, outname))
 
 
