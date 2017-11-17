@@ -5,7 +5,7 @@ Images.
 """
 import random
 import math
-from PIL import Image, ImageChops, ImageEnhance
+from PIL import Image, ImageChops, ImageEnhance, ImageColor
 
 
 def desample(im, factor):
@@ -96,7 +96,7 @@ def shift_corruption(im, offset_mag, coverage):
     """
     corrupted = im
     line_count = int(im.size[1] * coverage)
-    for ypos in random.choices(range(0, im.size[1]), k=line_count):
+    for ypos in random.choices(range(im.size[1]), k=line_count):
         box = (0, ypos, corrupted.size[0], ypos + 1)
         line = corrupted.crop(box)
         offset = random.randint(-offset_mag, offset_mag)
@@ -160,3 +160,100 @@ def add_transparent_pixel(im):
     top_left_pixel_val[-1] = 254
     converted.putpixel((0, 0), tuple(top_left_pixel_val))
     return converted
+
+
+def _get_grid_boxes(im, rows, cols):
+    """Return a list of 4-tuples for every bounding box in a given grid of
+    the image.
+    """
+    cell_width = int(im.size[0] / cols)
+    cell_height = int(im.size[1] / rows)
+
+    grid_boxes = [
+        (
+            cell_x * cell_width,
+            cell_y * cell_height,
+            cell_x * cell_width + cell_width,
+            cell_y * cell_height + cell_height
+        )
+        for cell_y in range(rows)
+        for cell_x in range(cols)
+    ]
+    return grid_boxes
+
+
+def swap_cells(im, rows, cols, swaps):
+    """Return an image which rectangular cells have swapped positions.
+
+    im: Pillow Image
+    rows: The number of rows in the grid
+    cols: The number of columns in the grid
+    swaps: the number of pairs of cells to swap
+    """
+    modified = im
+    grid_boxes = _get_grid_boxes(modified, rows, cols)
+    chosen_boxes = random.choices(grid_boxes, k=swaps * 2)
+    box_pairs = [
+        (chosen_boxes[2*i], chosen_boxes[(2*i)+1])
+        for i in range(int(len(chosen_boxes)/2))
+    ]
+    for box1, box2 in box_pairs:
+        cell1 = modified.crop(box1)
+        cell2 = modified.crop(box2)
+        modified.paste(cell1, box2)
+        modified.paste(cell2, box1)
+    return modified
+
+
+def make_noise_data(length, min, max):
+    """Return a list of RGB tuples of random greyscale values
+
+    length: The length of the list
+    min: The lowest luminosity value (out of 100)
+    max: The brightest luminosity value (out of 100)
+    """
+    return [
+        ImageColor.getrgb('hsl(0, 0%, {}%)'.format(random.randint(min, max)))
+        for _ in range(length)
+    ]
+
+
+def add_noise_cells(im, rows, cols, cells):
+    """Return an image with randomly placed cells of noise.
+
+    im: Pillow Image
+    rows: The number of rows in the cell grid
+    cols: The number of columns in the cell grid
+    cells: number of noise cells to be created
+    """
+    modified = im
+    grid_boxes = _get_grid_boxes(modified, rows, cols)
+    chosen_boxes = random.choices(grid_boxes, k=cells)
+    for box in chosen_boxes:
+        noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
+        noise_cell.putdata(make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75))
+        modified.paste(ImageChops.lighter(modified.crop(box), noise_cell), box)
+
+    return modified
+
+
+def add_noise_bands(im, count, thickness):
+    """Return an image with randomly placed full-width bands of noise.
+
+    im: Pillow Image
+    count: The number of bands of noise
+    thickness: Maximum thickness of the bands
+    """
+    modified = im.convert('RGBA')
+    boxes = [
+        (0, ypos, im.size[0], ypos + random.randint(1, thickness))
+        for ypos in random.choices(range(im.size[1]), k=count)
+    ]
+    for box in boxes:
+        noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
+        noise_cell.putdata(make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75))
+        combined_cell = ImageChops.lighter(modified.crop(box), noise_cell)
+        combined_cell.putalpha(128)
+        modified.alpha_composite(combined_cell, (box[0], box[1]))
+
+    return modified.convert(im.mode)
