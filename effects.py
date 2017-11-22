@@ -132,18 +132,19 @@ def walk_distortion(im, max_step_length):
     return waved
 
 
-def sin_wave_distortion(im, mag, freq):
+def sin_wave_distortion(im, mag, freq, phase=0):
     """Return an image with rows shifted according to a sine curve.
 
     im: Pillow Image
     mag: The magnitude of the sine wave
     freq: The frequency of the sine wave
+    phase: The degree by which the cycle is offset (rads)
     """
     waved = im
     for ypos in range(im.size[1]):
         box = (0, ypos, waved.size[0], ypos + 1)
         line = waved.crop(box)
-        offset = int(mag * math.sin((ypos / im.size[1]) * 2 * math.pi * freq))
+        offset = int(mag * math.sin(2 * math.pi * freq * (ypos / im.size[1]) + phase))
         line = ImageChops.offset(line, offset, 0)
         waved.paste(line, box=box)
     return waved
