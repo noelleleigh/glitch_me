@@ -1,8 +1,9 @@
 from PIL import ImageOps
 import effects
 
-TRANSFORMS = [
+STATIC_TRANSFORM = [
     (effects.convert, {'mode': 'RGB'}),
+    (effects.pixel_sort, {'mask_function': lambda val: 255 if val < 100 else 0}),
     (effects.split_color_channels, {'offset': 1}),
     (effects.swap_cells, {'rows': 20, 'cols': 20, 'swaps': 4}),
     (effects.add_noise_bands, {'count': 4, 'thickness': 10}),
