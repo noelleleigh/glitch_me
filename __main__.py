@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('--line_count', type=int, help='The vertical resolution you want the glitches to operate at')
     parser.add_argument('-f', '--frames', type=int, default=10, help='The number of frames you want in your GIF (default: 10)')
     parser.add_argument('-d', '--duration', type=int, default=100, help='The delay between frames in ms (default: 100)')
-    parser.add_argument('-b', '--bounce', action='store_true', default=False, help='Include if you want the gif to play backward to the beginning before looping. Doubles frame count (default: False)')
+    parser.add_argument('-b', '--bounce', action='store_true', default=False, help='Include if you want the gif to play backward to the beginning before looping. Doubles frame count.')
 
     args = parser.parse_args()
     if args.mode == 'single':
