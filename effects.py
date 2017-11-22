@@ -258,3 +258,54 @@ def add_noise_bands(im, count, thickness):
         modified.alpha_composite(combined_cell, (box[0], box[1]))
 
     return modified.convert(im.mode)
+
+
+def _get_lum(rgb):
+    return int(0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2])
+
+
+def _split_data(data, width):
+    height = int(len(data) / width)
+    return [
+        data[(row * width):(row * width + width)]
+        for row in range(height)
+    ]
+
+
+def pixel_sort(im, mask_function, reverse=False):
+    """Return an image that has been horizontally pixel sorted based on the
+    mask function.
+
+    im: Pillow Image
+    mask_function: function that takes a pixel's luminance and decides if it will be sorted or not
+    reverse: sort pixels in reverse order if True
+    """
+    interval_mask = im.convert('L').point(mask_function)
+    interval_mask_data = list(interval_mask.getdata())
+    interval_mask_row_data = _split_data(interval_mask_data, im.size[0])
+    interval_boxes = []
+    for row_index, row_data in enumerate(interval_mask_row_data):
+        for pixel_index, pixel in enumerate(row_data):
+            if pixel_index == 0 and pixel == 255:
+                start = (pixel_index, row_index)
+                continue
+            if pixel == 255 and row_data[pixel_index - 1] == 0:
+                start = (pixel_index, row_index)
+                continue
+            if pixel_index == len(row_data) - 1 and pixel == 255:
+                end = (pixel_index, row_index + 1)
+                interval_boxes.append((start[0], start[1], end[0], end[1]))
+                continue
+            if pixel == 0 and pixel_index > 0 and row_data[pixel_index - 1] == 255:
+                end = (pixel_index, row_index + 1)
+                interval_boxes.append((start[0], start[1], end[0], end[1]))
+                continue
+
+    modified = im
+    for box in interval_boxes:
+        cropped_interval = modified.crop(box)
+        interval_data = list(cropped_interval.getdata())
+        cropped_interval.putdata(sorted(interval_data, key=_get_lum, reverse=reverse))
+        modified.paste(cropped_interval, box=(box[0], box[1]))
+
+    return modified
