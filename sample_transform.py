@@ -1,4 +1,4 @@
-from PIL import ImageOps
+from PIL import Image, ImageOps
 import effects
 
 STATIC_TRANSFORM = [
@@ -14,3 +14,18 @@ STATIC_TRANSFORM = [
     (effects.sharpen, {'factor': 2.0}),
     (effects.add_transparent_pixel, {}),
 ]
+
+
+def GIF_TRANSFORM(progress, median_lum=128):
+    return [
+        (effects.convert, {'mode': 'RGB'}),
+        (effects.pixel_sort, {
+            'mask_function':
+            lambda val, progress=progress, median_lum=median_lum:
+                255 if val < median_lum * progress else 0
+        }),
+        (effects.sin_wave_distortion, {'mag': 10 * progress, 'freq': 2 * progress}),
+        (effects.add_noise_bands, {'count': int(10 * progress), 'thickness': 10}),
+        (effects.split_color_channels, {'offset': int(5 * progress)}),
+        (effects.convert, {'mode': 'P', 'palette': Image.ADAPTIVE}),
+    ]
