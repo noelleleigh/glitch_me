@@ -47,7 +47,7 @@ def crop(im, box):
     return im.crop(box)
 
 
-def convert(im, mode):
+def convert(im, **kwargs):
     """Return an image converted to the given mode (e.g. "RGB", "CMYK", ...).
 
     See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes for
@@ -56,7 +56,7 @@ def convert(im, mode):
     im: Pillow Image to be converted
     mode: Image mode to be converted to
     """
-    return im.convert(mode)
+    return im.convert(**kwargs)
 
 
 def split_color_channels(im, offset):
