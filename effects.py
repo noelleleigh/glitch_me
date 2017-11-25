@@ -309,3 +309,30 @@ def pixel_sort(im, mask_function, reverse=False):
         modified.paste(cropped_interval, box=(box[0], box[1]))
 
     return modified
+
+
+def low_res_blocks(im, rows, cols, cells, factor):
+    """Return an image with randomly placed cells of low-resolution.
+
+    im: Pillow Image
+    rows: The number of rows in the cell grid
+    cols: The number of columns in the cell grid
+    cells: number of low-res cells to be created
+    factor: the deresolution factor (factor 2: 8x8 -> 4x4)
+    """
+    modified = im
+    grid_boxes = _get_grid_boxes(modified, rows, cols)
+    chosen_boxes = random.choices(grid_boxes, k=cells)
+    for box in chosen_boxes:
+        low_res_cell = modified.crop(box)
+        low_res_cell = low_res_cell.resize(
+            tuple(map(lambda val: int(val / factor), low_res_cell.size)),
+            Image.NEAREST
+        )
+        low_res_cell = low_res_cell.resize(
+            tuple(map(lambda val: int(val * factor), low_res_cell.size)),
+            Image.NEAREST
+        )
+        modified.paste(low_res_cell, (box[0], box[1]))
+
+    return modified
