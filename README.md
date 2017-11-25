@@ -10,7 +10,7 @@ Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
 ## tl; dr
 ```
 git clone https://github.com/noahleigh/glitch_me.git
-python ./glitch_me image_folder/*.png output_folder --line_count 120
+python ./glitch_me single image_folder/*.png output_folder --line_count 120
 ```
 
 ## Usage
