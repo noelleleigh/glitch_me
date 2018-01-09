@@ -175,7 +175,8 @@ if __name__ == '__main__':
     from sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
     parser = ArgumentParser(
         'glitch_me',
-        description='Adds some nice distortion/glitching to your images!'
+        description='Add some glitch/distortion effects to images.'
+    )
     parser.add_argument(
         'mode', choices=['single', 'gif'],
         help='Make a single glitched image, or a progressive glitch animation.'
@@ -207,14 +208,14 @@ if __name__ == '__main__':
     if args.mode == 'single':
         make_still(
             args.input,
-            args.output,
+            args.output_dir,
             STATIC_TRANSFORM,
             line_count=args.line_count
         )
     elif args.mode == 'gif':
         make_gif(
             args.input,
-            args.output,
+            args.output_dir,
             GIF_TRANSFORM,
             line_count=args.line_count,
             frames=args.frames,
