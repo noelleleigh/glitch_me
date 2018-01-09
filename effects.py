@@ -2,11 +2,17 @@
 """Collection of pure functions for transforming Pillow Images."""
 import random
 import math
+from numbers import Real
+from typing import Sequence, Tuple, Callable
 from PIL import Image, ImageChops, ImageEnhance, ImageColor
 
+ImageType = Image.Image
+TransformationList = Sequence[
+    Tuple[Callable[[ImageType], ImageType], dict]
+]
 
-def desample(im, factor):
 
+def desample(im: ImageType, factor: Real) -> ImageType:
     """
     Return an image scaled down by a factor using nearest-neighbor resampling.
 
@@ -21,7 +27,7 @@ def desample(im, factor):
     return resized
 
 
-def upscale(im, factor):
+def upscale(im: ImageType, factor: Real) -> ImageType:
     """
     Return an image scaled up by a factor using nearest-neighbor resampling.
 
@@ -36,7 +42,7 @@ def upscale(im, factor):
     return resized
 
 
-def crop(im, box):
+def crop(im: ImageType, box: Tuple[int, int, int, int]) -> ImageType:
     """Return an image cropped to the given bounding box.
 
     im: Pillow Image to be cropped
@@ -45,7 +51,7 @@ def crop(im, box):
     return im.crop(box)
 
 
-def convert(im, **kwargs):
+def convert(im: ImageType, **kwargs) -> ImageType:
     """Return an image converted to the given mode (e.g. "RGB", "CMYK", ...).
 
     See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
@@ -57,7 +63,7 @@ def convert(im, **kwargs):
     return im.convert(**kwargs)
 
 
-def split_color_channels(im, offset):
+def split_color_channels(im: ImageType, offset: int) -> ImageType:
     """
     Return an image where the color channels are horizontally offset.
 
@@ -74,7 +80,7 @@ def split_color_channels(im, offset):
     return merged
 
 
-def sharpen(im, factor):
+def sharpen(im: ImageType, factor: int) -> ImageType:
     """Return an image that has been sharpened.
 
     im: Pillow Image
@@ -85,7 +91,7 @@ def sharpen(im, factor):
     return sharpened
 
 
-def shift_corruption(im, offset_mag, coverage):
+def shift_corruption(im: ImageType, offset_mag: int, coverage: float) -> ImageType:
     """Return an image with some rows randomly shifted left or right.
 
     Return an image with some pixel rows randomly shifted left or right by a
@@ -110,7 +116,7 @@ def shift_corruption(im, offset_mag, coverage):
     return corrupted
 
 
-def _random_walk(length, max_step_length):
+def _random_walk(length: int, max_step_length: int) -> Sequence[int]:
     """Return a list of values that rise and fall randomly."""
     output = []
     pos = 0
@@ -120,7 +126,7 @@ def _random_walk(length, max_step_length):
     return output
 
 
-def walk_distortion(im, max_step_length):
+def walk_distortion(im: ImageType, max_step_length: int) -> ImageType:
     """Return an image with rows shifted according to a 1D random-walk.
 
     im: Pillow Image
@@ -138,7 +144,9 @@ def walk_distortion(im, max_step_length):
     return waved
 
 
-def sin_wave_distortion(im, mag, freq, phase=0):
+def sin_wave_distortion(
+    im: ImageType, mag: Real, freq: Real, phase: Real=0
+) -> ImageType:
     """Return an image with rows shifted according to a sine curve.
 
     im: Pillow Image
@@ -156,7 +164,7 @@ def sin_wave_distortion(im, mag, freq, phase=0):
     return waved
 
 
-def add_transparent_pixel(im):
+def add_transparent_pixel(im: ImageType) -> ImageType:
     """Return an image that won't be compressed by Twitter.
 
     Return an image where the top-left pixel has a slight transparency to
@@ -171,7 +179,7 @@ def add_transparent_pixel(im):
     return converted
 
 
-def _get_grid_boxes(im, rows, cols):
+def _get_grid_boxes(im: ImageType, rows: int, cols: int) -> ImageType:
     """Return a list of 4-tuples for every box in a given grid of the image.
 
     im: Pillow image
@@ -194,7 +202,7 @@ def _get_grid_boxes(im, rows, cols):
     return grid_boxes
 
 
-def swap_cells(im, rows, cols, swaps):
+def swap_cells(im: ImageType, rows: int, cols: int, swaps: int) -> ImageType:
     """Return an image which rectangular cells have swapped positions.
 
     im: Pillow Image
@@ -217,7 +225,7 @@ def swap_cells(im, rows, cols, swaps):
     return modified
 
 
-def make_noise_data(length, min, max):
+def make_noise_data(length: int, min: int, max: int) -> ImageType:
     """Return a list of RGB tuples of random greyscale values.
 
     length: The length of the list
@@ -230,7 +238,7 @@ def make_noise_data(length, min, max):
     ]
 
 
-def add_noise_cells(im, rows, cols, cells):
+def add_noise_cells(im: ImageType, rows: int, cols: int, cells: int) -> ImageType:
     """Return an image with randomly placed cells of noise.
 
     im: Pillow Image
@@ -249,7 +257,7 @@ def add_noise_cells(im, rows, cols, cells):
     return modified
 
 
-def add_noise_bands(im, count, thickness):
+def add_noise_bands(im: ImageType, count: int, thickness: int) -> ImageType:
     """Return an image with randomly placed full-width bands of noise.
 
     im: Pillow Image
@@ -271,11 +279,13 @@ def add_noise_bands(im, count, thickness):
     return modified.convert(im.mode)
 
 
-def _get_lum(rgb):
+def _get_lum(rgb: Tuple[int, int, int]) -> int:
     return int(0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2])
 
 
-def _split_data(data, width):
+def _split_data(
+    data: Sequence[Tuple[int, ...]], width: int
+) -> Sequence[Sequence[Tuple[int, ...]]]:
     height = int(len(data) / width)
     return [
         data[(row * width):(row * width + width)]
@@ -283,7 +293,9 @@ def _split_data(data, width):
     ]
 
 
-def pixel_sort(im, mask_function, reverse=False):
+def pixel_sort(
+    im: ImageType, mask_function: Callable[[int], int], reverse: bool=False
+) -> ImageType:
     """Return a horizontally pixel-sorted Image based on the mask function.
 
     im: Pillow Image
@@ -322,7 +334,9 @@ def pixel_sort(im, mask_function, reverse=False):
     return modified
 
 
-def low_res_blocks(im, rows, cols, cells, factor):
+def low_res_blocks(
+    im: ImageType, rows: int, cols: int, cells: int, factor: Real
+) -> ImageType:
     """Return an image with randomly placed cells of low-resolution.
 
     im: Pillow Image
