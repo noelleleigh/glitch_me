@@ -27,10 +27,16 @@ optional arguments:
 """
 import glob
 import os
+from typing import Callable
 from PIL import Image, ImageStat
+from effects import TransformationList
+
+ImageType = Image.Image
 
 
-def apply_transformations(im, funcs):
+def apply_transformations(
+    im: ImageType, funcs: TransformationList
+) -> ImageType:
     """Take an Image and a list of functions and their args that return Images.
 
     Pass the output of the previous function into the next
@@ -48,7 +54,9 @@ def apply_transformations(im, funcs):
     return transformed
 
 
-def main(input_pattern, output_dir, transforms, line_count=None):
+def make_still(input_pattern: str, output_dir: str,
+               transforms: TransformationList,
+               line_count: int=None) -> list:
     """Make transformed image(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -86,7 +94,10 @@ def main(input_pattern, output_dir, transforms, line_count=None):
         output.save(os.path.join(output_dir, outname))
 
 
-def make_gif(input_pattern, output_dir, transform_generator, frames, duration, bounce):
+
+def make_gif(input_pattern: str, output_dir: str,
+             transform_generator: Callable[[int, int], TransformationList],
+             line_count: int, frames: int, duration: int, bounce: bool):
     """Make transformed gif(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
