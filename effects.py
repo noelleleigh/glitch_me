@@ -310,27 +310,40 @@ def pixel_sort(
 ) -> ImageType:
     """Return a horizontally pixel-sorted Image based on the mask function.
 
+    The default sorting direction is dark to light from left to right.
+
+    Pixel-sorting algorithm from: http://satyarth.me/articles/pixel-sorting/
+
     im: Pillow Image
-    mask_function: function that takes a pixel's luminance and clips it to
-        255 or 0 depending on if it should be sorted or not respectively.
+    mask_function: function that takes a pixel's luminance and returns
+        255 or 0 depending on whether it should be sorted or not respectively.
     reverse: sort pixels in reverse order if True
     """
+    # Create a black-and-white mask to determine which pixels will be sorted
     interval_mask = im.convert('L').point(mask_function)
     interval_mask_data = list(interval_mask.getdata())
     interval_mask_row_data = _split_data(interval_mask_data, im.size[0])
+
+    # Go row by row, recording the starting and ending points of each
+    # contiguous block of white pixels in the mask
     interval_boxes = []
     for row_index, row_data in enumerate(interval_mask_row_data):
         for pixel_index, pixel in enumerate(row_data):
+            # This is the first pixel on the row and it is white -> start box
             if pixel_index == 0 and pixel == 255:
                 start = (pixel_index, row_index)
                 continue
+            # The pixel is white and the previous pixel was black -> start box
             if pixel == 255 and row_data[pixel_index - 1] == 0:
                 start = (pixel_index, row_index)
                 continue
+            # This is the last pixel in the row and it is white -> end box
             if pixel_index == len(row_data) - 1 and pixel == 255:
                 end = (pixel_index, row_index + 1)
                 interval_boxes.append((start[0], start[1], end[0], end[1]))
                 continue
+            # The pixel is (black) and (not the first in the row) and (the
+            # previous pixel was white) -> end box
             if (pixel == 0 and pixel_index > 0 and
                     row_data[pixel_index - 1] == 255):
                 end = (pixel_index, row_index + 1)
@@ -339,11 +352,14 @@ def pixel_sort(
 
     modified = im
     for box in interval_boxes:
+        # Take the pixels from each box
         cropped_interval = modified.crop(box)
         interval_data = list(cropped_interval.getdata())
+        # sort them by luminance
         cropped_interval.putdata(
             sorted(interval_data, key=_get_lum, reverse=reverse)
         )
+        # and paste them back onto the image!
         modified.paste(cropped_interval, box=(box[0], box[1]))
 
     return modified
