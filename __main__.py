@@ -27,7 +27,7 @@ optional arguments:
 """
 import glob
 import os
-from typing import Callable
+from typing import Callable, Sequence
 from PIL import Image, ImageStat
 from effects import TransformationList
 
@@ -56,7 +56,7 @@ def apply_transformations(
 
 def make_still(input_pattern: str, output_dir: str,
                transforms: TransformationList,
-               line_count: int=None) -> list[str]:
+               line_count: int=None) -> Sequence[str]:
     """Make transformed image(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -104,7 +104,7 @@ def make_still(input_pattern: str, output_dir: str,
 def make_gif(input_pattern: str, output_dir: str,
              transform_generator: Callable[[int, int], TransformationList],
              line_count: int, frames: int, duration: int,
-             bounce: bool) -> list[str]:
+             bounce: bool) -> Sequence[str]:
     """Make transformed gif(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
