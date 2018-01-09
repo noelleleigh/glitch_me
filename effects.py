@@ -158,7 +158,9 @@ def sin_wave_distortion(
     for ypos in range(im.size[1]):
         box = (0, ypos, waved.size[0], ypos + 1)
         line = waved.crop(box)
-        offset = int(mag * math.sin(2 * math.pi * freq * (ypos / im.size[1]) + phase))
+        offset = int(
+            mag * math.sin(2 * math.pi * freq * (ypos / im.size[1]) + phase)
+        )
         line = ImageChops.offset(line, offset, 0)
         waved.paste(line, box=box)
     return waved
@@ -251,7 +253,9 @@ def add_noise_cells(im: ImageType, rows: int, cols: int, cells: int) -> ImageTyp
     chosen_boxes = random.choices(grid_boxes, k=cells)
     for box in chosen_boxes:
         noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
-        noise_cell.putdata(make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75))
+        noise_cell.putdata(
+            make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75)
+        )
         modified.paste(ImageChops.lighter(modified.crop(box), noise_cell), box)
 
     return modified
@@ -271,7 +275,9 @@ def add_noise_bands(im: ImageType, count: int, thickness: int) -> ImageType:
     ]
     for box in boxes:
         noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
-        noise_cell.putdata(make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75))
+        noise_cell.putdata(
+            make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75)
+        )
         combined_cell = ImageChops.lighter(modified.crop(box), noise_cell)
         combined_cell.putalpha(128)
         modified.alpha_composite(combined_cell, (box[0], box[1]))
@@ -319,7 +325,8 @@ def pixel_sort(
                 end = (pixel_index, row_index + 1)
                 interval_boxes.append((start[0], start[1], end[0], end[1]))
                 continue
-            if pixel == 0 and pixel_index > 0 and row_data[pixel_index - 1] == 255:
+            if (pixel == 0 and pixel_index > 0 and
+                    row_data[pixel_index - 1] == 255):
                 end = (pixel_index, row_index + 1)
                 interval_boxes.append((start[0], start[1], end[0], end[1]))
                 continue
@@ -328,7 +335,9 @@ def pixel_sort(
     for box in interval_boxes:
         cropped_interval = modified.crop(box)
         interval_data = list(cropped_interval.getdata())
-        cropped_interval.putdata(sorted(interval_data, key=_get_lum, reverse=reverse))
+        cropped_interval.putdata(
+            sorted(interval_data, key=_get_lum, reverse=reverse)
+        )
         modified.paste(cropped_interval, box=(box[0], box[1]))
 
     return modified
