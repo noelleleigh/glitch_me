@@ -132,11 +132,25 @@ def make_gif(input_pattern: str, output_dir: str,
     output_paths = []
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
+
+        if line_count is not None:
+            original_size = im.size
+            scale_factor = line_count / im.size[1]
+            scaled_size = tuple(
+                map(lambda val: int(val * scale_factor), im.size)
+            )
+            im = im.resize(scaled_size, resample=Image.NEAREST)
+
         median_lum = ImageStat.Stat(im.convert('L')).median[0]
         frame_list = []
         for i in range(frames):
-            i_transforms = transform_generator(i / frames, median_lum=median_lum*1.5)
-            frame_list.append(apply_transformations(im, i_transforms))
+            frame_transforms = transform_generator(i / frames, median_lum)
+            transformed_frame = apply_transformations(im, frame_transforms)
+            if line_count is not None:
+                transformed_frame = transformed_frame.resize(
+                    original_size, resample=Image.NEAREST
+                )
+            frame_list.append(transformed_frame)
 
         if bounce:
             frame_list = frame_list + list(reversed(frame_list))[1:]
@@ -202,6 +216,7 @@ if __name__ == '__main__':
             args.input,
             args.output,
             GIF_TRANSFORM,
+            line_count=args.line_count,
             frames=args.frames,
             duration=args.duration,
             bounce=args.bounce
