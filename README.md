@@ -1,4 +1,6 @@
 # glitch_me
+![Screencap of a Shinto gate from the anime movie Your Name that has aesthetically pleasing visual distortions](readme_assets/gate_small_glitch.gif)
+
 Python module to add some distortion/glitch effects to images.
 
 Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
