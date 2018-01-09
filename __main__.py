@@ -81,7 +81,9 @@ def make_still(input_pattern: str, output_dir: str,
         if line_count is not None:
             original_size = im.size
             scale_factor = line_count / im.size[1]
-            scaled_size = tuple(map(lambda val: int(val * scale_factor), im.size))
+            scaled_size = tuple(
+                map(lambda val: int(val * scale_factor), im.size)
+            )
             im = im.resize(scaled_size, resample=Image.NEAREST)
 
         output = apply_transformations(im, transforms)
@@ -151,14 +153,32 @@ if __name__ == '__main__':
     parser = ArgumentParser(
         'glitch_me',
         description='Adds some nice distortion/glitching to your images!'
+    parser.add_argument(
+        'mode', choices=['single', 'gif'],
+        help='Make a single glitched image, or a progressive glitch animation.'
     )
-    parser.add_argument('mode', choices=['single', 'gif'], help='Make a single glitched image, or a progressive glitch animation.')
     parser.add_argument('input', help='Input image path glob pattern')
-    parser.add_argument('output', help='Path to output directory')
-    parser.add_argument('--line_count', type=int, help='The vertical resolution you want the glitches to operate at')
-    parser.add_argument('-f', '--frames', type=int, default=10, help='The number of frames you want in your GIF (default: 10)')
-    parser.add_argument('-d', '--duration', type=int, default=100, help='The delay between frames in ms (default: 100)')
-    parser.add_argument('-b', '--bounce', action='store_true', default=False, help='Include if you want the gif to play backward to the beginning before looping. Doubles frame count.')
+    parser.add_argument(
+        'output_dir', help='Path to output directory  (files will be saved \
+        with "_glitch" prefix)'
+    )
+    parser.add_argument(
+        '--line_count', type=int,
+        help='The vertical resolution you want the glitches to operate at'
+    )
+    parser.add_argument(
+        '-f', '--frames', type=int, default=20,
+        help='The number of frames you want in your GIF (default: 20)'
+    )
+    parser.add_argument(
+        '-d', '--duration', type=int, default=100,
+        help='The delay between frames in ms (default: 100)'
+    )
+    parser.add_argument(
+        '-b', '--bounce', action='store_true', default=False,
+        help='Include if you want the gif to play backward to the beginning \
+        before looping. Doubles frame count.'
+    )
 
     args = parser.parse_args()
     if args.mode == 'single':
