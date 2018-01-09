@@ -1,20 +1,18 @@
 #! python3
-"""
-Collection of pure functions for transforming and applying effects to Pillow
-Images.
-"""
+"""Collection of pure functions for transforming Pillow Images."""
 import random
 import math
 from PIL import Image, ImageChops, ImageEnhance, ImageColor
 
 
 def desample(im, factor):
-    """Return an image scaled down by a given factor using nearest-neighbor
-    resampling.
+
+    """
+    Return an image scaled down by a factor using nearest-neighbor resampling.
 
     im: Pillow Image to be downsampled
     factor: The factor by which the width and height of the image will be
-    reduced. Example: image(24x15) -> desample factor 3 -> image(8x5)
+        reduced. Example: image(24x15) -> desample factor 3 -> image(8x5)
     """
     resized = im.resize(
         tuple(map(lambda val: int(val / factor), im.size)),
@@ -24,12 +22,12 @@ def desample(im, factor):
 
 
 def upscale(im, factor):
-    """Return an image scaled up by a given factor using nearest-neighbor
-    resampling.
+    """
+    Return an image scaled up by a factor using nearest-neighbor resampling.
 
     im: Pillow Image to be upscaled
     factor: The factor by which the width and height of the image will be
-    increased. Example: image(8x5) -> upscale factor 3 -> image(24x15)
+        increased. Example: image(8x5) -> upscale factor 3 -> image(24x15)
     """
     resized = im.resize(
         tuple(map(lambda val: int(val * factor), im.size)),
@@ -50,8 +48,8 @@ def crop(im, box):
 def convert(im, **kwargs):
     """Return an image converted to the given mode (e.g. "RGB", "CMYK", ...).
 
-    See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes for
-    list of modes.
+    See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
+    for list of modes.
 
     im: Pillow Image to be converted
     mode: Image mode to be converted to
@@ -60,8 +58,11 @@ def convert(im, **kwargs):
 
 
 def split_color_channels(im, offset):
-    """Return an image where the Red and Blue color channels are horizontally
-    offset from the Green channel left and right respectively.
+    """
+    Return an image where the color channels are horizontally offset.
+
+    The Red and Blue color channels are horizontally offset from the Green
+    channel left and right respectively.
 
     im: Pillow Image
     offset: distance in pixels the color channels should be offset by
@@ -85,14 +86,18 @@ def sharpen(im, factor):
 
 
 def shift_corruption(im, offset_mag, coverage):
-    """Return an image with some pixel rows randomly shifted left or right by a
+    """Return an image with some rows randomly shifted left or right.
+
+    Return an image with some pixel rows randomly shifted left or right by a
     random amount, wrapping around to the opposite side of the image.
 
     im: Pillow Image
     offset_mag: The greatest magnitude (in pixels) the rows will be shifted by
-    in either direction.
-    coverage: The fraction of total rows that will be shifted by some amount (0.5 = half the rows will be shifted). Note: Because the possible range of
-    shifts include zero, some rows may not be shifted even with a coverage of 1.
+        in either direction.
+    coverage: The fraction of total rows that will be shifted by some amount
+        (0.5 = half the rows will be shifted). Note: Because the possible range
+        of shifts include zero, some rows may not be shifted even with a
+        coverage of 1.
     """
     corrupted = im
     line_count = int(im.size[1] * coverage)
@@ -119,7 +124,8 @@ def walk_distortion(im, max_step_length):
     """Return an image with rows shifted according to a 1D random-walk.
 
     im: Pillow Image
-    max_step_length: The maximum step size (in pixels) that the random walk can take. Essentially, the permitted "abruptness" of the distortion
+    max_step_length: The maximum step size (in pixels) that the random walk can
+        take. Essentially, the permitted "abruptness" of the distortion
     """
     waved = im
     curve = _random_walk(im.size[1], max_step_length)
@@ -151,7 +157,9 @@ def sin_wave_distortion(im, mag, freq, phase=0):
 
 
 def add_transparent_pixel(im):
-    """Return an image where the top-left pixel has a slight transparency to
+    """Return an image that won't be compressed by Twitter.
+
+    Return an image where the top-left pixel has a slight transparency to
     force Twitter to not compress it.
 
     im: Pillow Image
@@ -164,8 +172,11 @@ def add_transparent_pixel(im):
 
 
 def _get_grid_boxes(im, rows, cols):
-    """Return a list of 4-tuples for every bounding box in a given grid of
-    the image.
+    """Return a list of 4-tuples for every box in a given grid of the image.
+
+    im: Pillow image
+    rows: Number of rows in the grid
+    cols: Number of columns in the grid
     """
     cell_width = int(im.size[0] / cols)
     cell_height = int(im.size[1] / rows)
@@ -207,7 +218,7 @@ def swap_cells(im, rows, cols, swaps):
 
 
 def make_noise_data(length, min, max):
-    """Return a list of RGB tuples of random greyscale values
+    """Return a list of RGB tuples of random greyscale values.
 
     length: The length of the list
     min: The lowest luminosity value (out of 100)
@@ -273,11 +284,11 @@ def _split_data(data, width):
 
 
 def pixel_sort(im, mask_function, reverse=False):
-    """Return an image that has been horizontally pixel sorted based on the
-    mask function.
+    """Return a horizontally pixel-sorted Image based on the mask function.
 
     im: Pillow Image
-    mask_function: function that takes a pixel's luminance and decides if it will be sorted or not
+    mask_function: function that takes a pixel's luminance and clips it to
+        255 or 0 depending on if it should be sorted or not respectively.
     reverse: sort pixels in reverse order if True
     """
     interval_mask = im.convert('L').point(mask_function)
