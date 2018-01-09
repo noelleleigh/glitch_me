@@ -56,7 +56,7 @@ def apply_transformations(
 
 def make_still(input_pattern: str, output_dir: str,
                transforms: TransformationList,
-               line_count: int=None) -> list:
+               line_count: int=None) -> list[str]:
     """Make transformed image(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -75,6 +75,7 @@ def make_still(input_pattern: str, output_dir: str,
         original resolution. Using a number smaller than the original vertical
         resolution will lead to a "pixelated" output image.
     """
+    output_paths = []
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
 
@@ -93,13 +94,17 @@ def make_still(input_pattern: str, output_dir: str,
 
         basename = os.path.basename(input_path)
         outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
-        output.save(os.path.join(output_dir, outname))
+        out_path = os.path.join(output_dir, outname)
+        output_paths.append(out_path)
+        output.save(out_path)
 
+    return output_paths
 
 
 def make_gif(input_pattern: str, output_dir: str,
              transform_generator: Callable[[int, int], TransformationList],
-             line_count: int, frames: int, duration: int, bounce: bool):
+             line_count: int, frames: int, duration: int,
+             bounce: bool) -> list[str]:
     """Make transformed gif(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -124,6 +129,7 @@ def make_gif(input_pattern: str, output_dir: str,
     duration: The duration of each frame in milliseconds.
     bounce: Whether to play the animation backwards after completion.
     """
+    output_paths = []
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
         median_lum = ImageStat.Stat(im.convert('L')).median[0]
@@ -136,15 +142,18 @@ def make_gif(input_pattern: str, output_dir: str,
             frame_list = frame_list + list(reversed(frame_list))[1:]
 
         basename = os.path.basename(input_path)
-        outname = '{}_anim.gif'.format(os.path.splitext(basename)[0])
-        base_im = im.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+        outname = '{}_glitch.gif'.format(os.path.splitext(basename)[0])
+        out_path = os.path.join(output_dir, outname)
+        output_paths.append(out_path)
         frame_list[0].save(
-            os.path.join(output_dir, outname),
+            out_path,
             save_all=True,
             append_images=frame_list[1:],
             duration=duration,
             loop=0
         )
+
+    return output_paths
 
 
 if __name__ == '__main__':
@@ -182,7 +191,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.mode == 'single':
-        main(
+        make_still(
             args.input,
             args.output,
             STATIC_TRANSFORM,
