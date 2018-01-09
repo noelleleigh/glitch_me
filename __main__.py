@@ -187,6 +187,10 @@ if __name__ == '__main__':
         with "_glitch" prefix)'
     )
     parser.add_argument(
+        '-q', '--quiet', action='store_true', default=False,
+        help='Include to not print the paths to the output image(s).'
+    )
+    parser.add_argument(
         '--line_count', type=int,
         help='The vertical resolution you want the glitches to operate at'
     )
@@ -205,22 +209,28 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
+    output_paths = []
     if args.mode == 'single':
-        make_still(
+        output_paths.extend(make_still(
             args.input,
-            args.output_dir,
+            os.path.abspath(args.output_dir),
             STATIC_TRANSFORM,
             line_count=args.line_count
-        )
+        ))
+
     elif args.mode == 'gif':
-        make_gif(
+        output_paths.extend(make_gif(
             args.input,
-            args.output_dir,
+            os.path.abspath(args.output_dir),
             GIF_TRANSFORM,
             line_count=args.line_count,
             frames=args.frames,
             duration=args.duration,
             bounce=args.bounce
-        )
+        ))
     else:
         print('Mode not recognized.')
+
+    if not args.quiet:
+        for path in output_paths:
+            print(path)
