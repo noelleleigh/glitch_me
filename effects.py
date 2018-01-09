@@ -91,7 +91,9 @@ def sharpen(im: ImageType, factor: int) -> ImageType:
     return sharpened
 
 
-def shift_corruption(im: ImageType, offset_mag: int, coverage: float) -> ImageType:
+def shift_corruption(
+    im: ImageType, offset_mag: int, coverage: float
+) -> ImageType:
     """Return an image with some rows randomly shifted left or right.
 
     Return an image with some pixel rows randomly shifted left or right by a
@@ -240,7 +242,9 @@ def make_noise_data(length: int, min: int, max: int) -> ImageType:
     ]
 
 
-def add_noise_cells(im: ImageType, rows: int, cols: int, cells: int) -> ImageType:
+def add_noise_cells(
+    im: ImageType, rows: int, cols: int, cells: int
+) -> ImageType:
     """Return an image with randomly placed cells of noise.
 
     im: Pillow Image
