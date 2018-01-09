@@ -17,7 +17,8 @@ python ./glitch_me single image_folder/*.png output_folder --line_count 120
 
 ## Usage
 ```
-usage: glitch_me [-h] [--line_count LINE_COUNT] [-f FRAMES] [-d DURATION] [-b]
+usage: glitch_me [-h] [-q] [--line_count LINE_COUNT] [-f FRAMES] [-d DURATION]
+                 [-b]
                  {single,gif} input output_dir
 
 Add some glitch/distortion effects to images.
@@ -31,6 +32,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -q, --quiet           Include to not print the paths to the output image(s).
   --line_count LINE_COUNT
                         The vertical resolution you want the glitches to
                         operate at
