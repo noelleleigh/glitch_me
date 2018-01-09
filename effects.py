@@ -229,7 +229,9 @@ def swap_cells(im: ImageType, rows: int, cols: int, swaps: int) -> ImageType:
     return modified
 
 
-def make_noise_data(length: int, min: int, max: int) -> ImageType:
+def make_noise_data(
+    length: int, min: int, max: int
+) -> Sequence[Tuple[int, int, int]]:
     """Return a list of RGB tuples of random greyscale values.
 
     length: The length of the list
