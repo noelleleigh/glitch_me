@@ -1,3 +1,12 @@
+"""
+Two sample transformation lists, one for static images, one generator for GIFs.
+
+STATIC_TRANSFORM: List of 2-tuples:
+    - Function: Image -> Image
+    - dict: args passed to function
+
+GIF_TRANSFORM: Function that returns a list in the form of STATIC_TRANSFORM
+"""
 from PIL import Image, ImageOps
 import effects
 
@@ -17,6 +26,16 @@ STATIC_TRANSFORM = [
 
 
 def GIF_TRANSFORM(progress, median_lum=128):
+    """Return a list functions and arguments for a given `progress`.
+
+    Because this is intended for making GIFs, it also converts the image to RGB
+    mode at the start, then Palette mode at the end.
+
+    progress: A float from 0.0 to 1.0 that indicates how far into the frame
+        animation we are.
+    median_lum: The median luminance of the image (integer from 0 to 255),
+        useful for controlling pixel sorting.
+    """
     return [
         (effects.convert, {'mode': 'RGB'}),
         (effects.pixel_sort, {
