@@ -42,6 +42,7 @@ optional arguments:
 ```
 
 ## Examples using the included transforms
+(*Click images for larger view*)
 | Original | Glitched | GIF'd |
 |----------|----------|-------|
 |![tokyo](readme_assets/tokyo_small.png) | ![tokyo glitched](readme_assets/tokyo_small_glitch.png) | ![tokyo glitched gif](readme_assets/tokyo_small_glitch.gif) |
