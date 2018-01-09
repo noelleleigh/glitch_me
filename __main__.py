@@ -1,10 +1,47 @@
 #! python3
+"""
+Add some glitch/distortion effects to images.
+
+usage: glitch_me [-h] [--line_count LINE_COUNT] [-f FRAMES] [-d DURATION] [-b]
+                 {single,gif} input output_dir
+
+positional arguments:
+  {single,gif}          Make a single glitched image, or a progressive glitch
+                        animation.
+  input                 Input image path glob pattern
+  output_dir            Path to output directory (files will be saved with
+                        "_glitch" prefix)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --line_count LINE_COUNT
+                        The vertical resolution you want the glitches to
+                        operate at
+  -f FRAMES, --frames FRAMES
+                        The number of frames you want in your GIF (default:
+                        20)
+  -d DURATION, --duration DURATION
+                        The delay between frames in ms (default: 100)
+  -b, --bounce          Include if you want the gif to play backward to the
+                        beginning before looping. Doubles frame count.
+"""
 import glob
 import os
 from PIL import Image, ImageStat
 
 
 def apply_transformations(im, funcs):
+    """Take an Image and a list of functions and their args that return Images.
+
+    Pass the output of the previous function into the next
+    function. Return the output of the last function.
+
+    im: a Pillow Image
+    funcs: A list of 2-tuples where the first element is the function that
+        takes a Pillow Image and returns a modified one, and the second element
+        is a dictionary of the named args to be passed to that function in **
+        notation.
+    """
     transformed = im
     for func, args in funcs:
         transformed = func(transformed, **args)
@@ -12,6 +49,24 @@ def apply_transformations(im, funcs):
 
 
 def main(input_pattern, output_dir, transforms, line_count=None):
+    """Make transformed image(s) from a list of functions.
+
+    Select one or more image files from a glob pattern, apply a list of
+    transforms to them, save the transformed images (with a `*_glitch.png`
+    suffix) and return a list of their paths.
+
+    input_pattern: A glob pattern for choosing which files to transform
+    output_dir: Path to the directory the resulting files should be stored in
+    transforms: A list of 2-tuples where the first element is the function that
+        takes a Pillow Image and returns a modified one, and the second element
+        is a dictionary of the named args to be passed to that function in **
+        notation.
+    line_count: The effective vertical resolution of the transformed image. The
+        transformations will be applied to an image that has been scaled
+        to this vertical resolution, than scaled (nearest-neightbor) to its
+        original resolution. Using a number smaller than the original vertical
+        resolution will lead to a "pixelated" output image.
+    """
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
 
@@ -32,6 +87,30 @@ def main(input_pattern, output_dir, transforms, line_count=None):
 
 
 def make_gif(input_pattern, output_dir, transform_generator, frames, duration, bounce):
+    """Make transformed gif(s) from a list of functions.
+
+    Select one or more image files from a glob pattern, apply a list of
+    transforms to them using a progressive parameter to create a frame
+    animation, save the transformed images (with a `*_glitch.gif` suffix) and
+    return a list of their paths.
+
+    input_pattern: A glob pattern for choosing which files to transform
+    output_dir: Path to the directory the resulting files should be stored in
+    transform_generator: A function that takes a `progress` argument
+        (float 0 to 1) and a `median_lum` argument (int 0 to 255) and returns a
+        list of 2-tuples where the first element is the function that takes a
+        Pillow Image and returns a modified one, and the second element is a
+        dictionary of the named args and their values to be passed to that
+        function.
+    line_count: The effective vertical resolution of the transformed image. The
+        transformations will be applied to an image that has been scaled
+        to this vertical resolution, than scaled (nearest-neightbor) to its
+        original resolution. Using a number smaller than the original vertical
+        resolution will lead to a "pixelated" output image.
+    frames: The number of frames the animation will be spread across.
+    duration: The duration of each frame in milliseconds.
+    bounce: Whether to play the animation backwards after completion.
+    """
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
         median_lum = ImageStat.Stat(im.convert('L')).median[0]
