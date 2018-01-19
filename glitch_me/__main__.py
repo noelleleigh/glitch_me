@@ -181,8 +181,8 @@ def main():
         description='Add some glitch/distortion effects to images.'
     )
     parser.add_argument(
-        'mode', choices=['single', 'gif'],
-        help='Make a single glitched image, or a progressive glitch animation.'
+        'mode', choices=['still', 'gif'],
+        help='Make a still glitched image, or a progressive glitch animation.'
     )
     parser.add_argument('input', help='Input image path glob pattern')
     parser.add_argument(
@@ -213,7 +213,7 @@ def main():
 
     args = parser.parse_args()
     output_paths = []
-    if args.mode == 'single':
+    if args.mode == 'still':
         output_paths.extend(make_still(
             args.input,
             os.path.abspath(args.output_dir),
