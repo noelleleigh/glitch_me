@@ -82,6 +82,7 @@ def make_still(input_pattern: str, output_dir: str,
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
 
+        # Handle initial image scaling
         if line_count is not None:
             original_size = im.size
             scale_factor = line_count / im.size[1]
@@ -90,11 +91,14 @@ def make_still(input_pattern: str, output_dir: str,
             )
             im = im.resize(scaled_size, resample=Image.NEAREST)
 
+        # Apply the transforms to the image
         output = apply_transformations(im, transforms)
 
+        # Reverse the initial image scaling
         if line_count is not None:
             output = output.resize(original_size, resample=Image.NEAREST)
 
+        # Save the result and append the path to output_paths
         basename = os.path.basename(input_path)
         outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
         out_path = os.path.join(output_dir, outname)
@@ -136,6 +140,7 @@ def make_gif(input_pattern: str, output_dir: str,
     for input_path in glob.glob(input_pattern):
         im = Image.open(input_path)
 
+        # Handle initial image scaling
         if line_count is not None:
             original_size = im.size
             scale_factor = line_count / im.size[1]
@@ -147,20 +152,26 @@ def make_gif(input_pattern: str, output_dir: str,
         median_lum = ImageStat.Stat(im.convert('L')).median[0]
         frame_list = []
         for i in range(frames):
+            # Create a list of transforms from the generator
             frame_transforms = transform_generator(i / frames, median_lum)
+            # Apply those transforms to the image
             transformed_frame = apply_transformations(im, frame_transforms)
+            # Reverse the initial image scaling
             if line_count is not None:
                 transformed_frame = transformed_frame.resize(
                     original_size, resample=Image.NEAREST
                 )
+            # Add the transformed image to the fram list
             frame_list.append(transformed_frame)
 
         if bounce:
             frame_list = frame_list + list(reversed(frame_list))[1:]
 
+        # Save the result and append the path to output_paths
         basename = os.path.basename(input_path)
         outname = '{}_glitch.gif'.format(os.path.splitext(basename)[0])
         out_path = os.path.join(output_dir, outname)
+        # Call save() on the first frame, and add the rest in the args
         frame_list[0].save(
             out_path,
             save_all=True,
