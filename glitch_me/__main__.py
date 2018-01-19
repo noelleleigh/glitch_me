@@ -98,8 +98,8 @@ def make_still(input_pattern: str, output_dir: str,
         basename = os.path.basename(input_path)
         outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
         out_path = os.path.join(output_dir, outname)
-        output_paths.append(out_path)
         output.save(out_path)
+        output_paths.append(out_path)
 
     return output_paths
 
@@ -161,7 +161,6 @@ def make_gif(input_pattern: str, output_dir: str,
         basename = os.path.basename(input_path)
         outname = '{}_glitch.gif'.format(os.path.splitext(basename)[0])
         out_path = os.path.join(output_dir, outname)
-        output_paths.append(out_path)
         frame_list[0].save(
             out_path,
             save_all=True,
@@ -169,6 +168,7 @@ def make_gif(input_pattern: str, output_dir: str,
             duration=duration,
             loop=0
         )
+        output_paths.append(out_path)
 
     return output_paths
 
