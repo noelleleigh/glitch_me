@@ -173,6 +173,7 @@ def make_gif(input_pattern: str, output_dir: str,
 
 def main():
     """Run the CLI."""
+    from sys import exit as sys_exit
     from argparse import ArgumentParser
 
     parser = ArgumentParser(
@@ -186,7 +187,7 @@ def main():
     parser.add_argument('input', help='Input image path glob pattern')
     parser.add_argument(
         'output_dir', help='Path to output directory  (files will be saved \
-        with "_glitch" prefix)'
+        with "_glitch" suffix)'
     )
     parser.add_argument(
         '-q', '--quiet', action='store_true', default=False,
@@ -231,7 +232,8 @@ def main():
             bounce=args.bounce
         ))
     else:
-        print('Mode not recognized.')
+        print('Mode "{mode}" not recognized.'.format(mode=args.mode))
+        sys_exit(1)
 
     if not args.quiet:
         for path in output_paths:
