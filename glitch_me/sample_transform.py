@@ -33,7 +33,7 @@ STATIC_TRANSFORM = [
 def GIF_TRANSFORM(
     progress: float, median_lum: int=128
 ) -> effects.TransformationList:
-    """Return a list functions and arguments for a given `progress`.
+    """Return a list of functions and arguments for a given `progress`.
 
     Because this is intended for making GIFs, it also converts the image to RGB
     mode at the start, then Palette mode at the end.
