@@ -2,18 +2,20 @@
 """
 Add some glitch/distortion effects to images.
 
-usage: glitch_me [-h] [--line_count LINE_COUNT] [-f FRAMES] [-d DURATION] [-b]
-                 {single,gif} input output_dir
+usage: glitch_me [-h] [-q] [--line_count LINE_COUNT] [-f FRAMES] [-d DURATION]
+                 [-b]
+                 {still,gif} input output_dir
 
 positional arguments:
-  {single,gif}          Make a single glitched image, or a progressive glitch
+  {still,gif}           Make a still glitched image, or a progressive glitch
                         animation.
   input                 Input image path glob pattern
   output_dir            Path to output directory (files will be saved with
-                        "_glitch" prefix)
+                        "_glitch" suffix)
 
 optional arguments:
   -h, --help            show this help message and exit
+  -q, --quiet           Include to not print the paths to the output image(s).
   --line_count LINE_COUNT
                         The vertical resolution you want the glitches to
                         operate at
