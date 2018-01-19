@@ -9,8 +9,6 @@ setup(
     url='https://github.com/noahleigh/glitch_me',
     author='Noah Leigh',
     classifiers=[
-        'Development Status :: 4 - Beta',
-
         'Intended Audience :: End Users/Desktop',
         'Topic :: Artistic Software',
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
