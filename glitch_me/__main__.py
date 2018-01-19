@@ -29,7 +29,8 @@ import glob
 import os
 from typing import Callable, Sequence
 from PIL import Image, ImageStat
-from effects import TransformationList
+from .effects import TransformationList
+from .sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
 
 ImageType = Image.Image
 
@@ -170,9 +171,10 @@ def make_gif(input_pattern: str, output_dir: str,
     return output_paths
 
 
-if __name__ == '__main__':
+def main():
+    """Run the CLI."""
     from argparse import ArgumentParser
-    from sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
+
     parser = ArgumentParser(
         'glitch_me',
         description='Add some glitch/distortion effects to images.'
@@ -234,3 +236,7 @@ if __name__ == '__main__':
     if not args.quiet:
         for path in output_paths:
             print(path)
+
+
+if __name__ == '__main__':
+    main()

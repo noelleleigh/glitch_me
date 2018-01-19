@@ -9,7 +9,7 @@ GIF_TRANSFORM: Function that returns a list in the form of STATIC_TRANSFORM
 """
 from math import pi, cos
 from PIL import Image, ImageOps
-import effects
+from . import effects
 
 
 STATIC_TRANSFORM = [
