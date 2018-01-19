@@ -13,7 +13,7 @@ Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
 ```
 git clone https://github.com/noahleigh/glitch_me.git
 cd glitch_me
-python -m glitch_me single image_folder/*.png output_folder --line_count 120
+python -m glitch_me still image_folder/*.png output_folder --line_count 120
 ```
 
 ## Usage
