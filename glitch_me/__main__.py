@@ -115,6 +115,7 @@ def make_still(input_path: str, output_dir: str,
     if progress_bar:
         progress_bar.set_description('{}: Saving'.format(out_path))
     output.save(out_path)
+    im.close()
 
     return out_path
 
@@ -196,6 +197,7 @@ def make_gif(input_path: str, output_dir: str,
         duration=duration,
         loop=0
     )
+    im.close()
 
     return out_path
 
