@@ -29,8 +29,10 @@ optional arguments:
 """
 import glob
 import os
+from contextlib import ExitStack
 from typing import Callable, Sequence
 from PIL import Image, ImageStat
+from tqdm import tqdm
 from .effects import TransformationList
 from .sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
 
@@ -38,7 +40,7 @@ ImageType = Image.Image
 
 
 def apply_transformations(
-    im: ImageType, funcs: TransformationList
+    im: ImageType, funcs: TransformationList, progress_bar=None, file=None
 ) -> ImageType:
     """Take an Image and a list of functions and their args that return Images.
 
@@ -50,16 +52,23 @@ def apply_transformations(
         takes a Pillow Image and returns a modified one, and the second element
         is a dictionary of the named args to be passed to that function in **
         notation.
+    progress_bar: A tqdm progress bar that will be incremented by the size of
+        the transformed image on every transformation.
+    file: The name of the file being transformed, for printing with the
+        progress bar.
     """
     transformed = im
     for func, args in funcs:
+        if (progress_bar):
+            progress_bar.update(transformed.size[0] * transformed.size[1])
+            progress_bar.set_description('{}: {}'.format(file, func.__name__))
         transformed = func(transformed, **args)
     return transformed
 
 
 def make_still(input_path: str, output_dir: str,
                transforms: TransformationList,
-               line_count: int=None) -> Sequence[str]:
+               line_count: int=None, progress_bar=None) -> Sequence[str]:
     """Make transformed image(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -77,7 +86,10 @@ def make_still(input_path: str, output_dir: str,
         to this vertical resolution, than scaled (nearest-neightbor) to its
         original resolution. Using a number smaller than the original vertical
         resolution will lead to a "pixelated" output image.
+    progress_bar: A tqdm progress bar.
     """
+    if progress_bar:
+        progress_bar.set_description('{}: Opening'.format(input_path))
     im = Image.open(input_path)
 
     # Handle initial image scaling
@@ -90,7 +102,7 @@ def make_still(input_path: str, output_dir: str,
         im = im.resize(scaled_size, resample=Image.NEAREST)
 
     # Apply the transforms to the image
-    output = apply_transformations(im, transforms)
+    output = apply_transformations(im, transforms, progress_bar, input_path)
 
     # Reverse the initial image scaling
     if line_count is not None:
@@ -100,6 +112,8 @@ def make_still(input_path: str, output_dir: str,
     basename = os.path.basename(input_path)
     outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
     out_path = os.path.join(output_dir, outname)
+    if progress_bar:
+        progress_bar.set_description('{}: Saving'.format(out_path))
     output.save(out_path)
 
     return out_path
@@ -108,7 +122,7 @@ def make_still(input_path: str, output_dir: str,
 def make_gif(input_path: str, output_dir: str,
              transform_generator: Callable[[int, int], TransformationList],
              line_count: int, frames: int, duration: int,
-             bounce: bool) -> Sequence[str]:
+             bounce: bool, progress_bar=None) -> Sequence[str]:
     """Make transformed gif(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -132,7 +146,10 @@ def make_gif(input_path: str, output_dir: str,
     frames: The number of frames the animation will be spread across.
     duration: The duration of each frame in milliseconds.
     bounce: Whether to play the animation backwards after completion.
+    progress_bar: A tqdm progress bar
     """
+    if progress_bar:
+        progress_bar.set_description('{}: Opening'.format(input_path))
     im = Image.open(input_path)
 
     # Handle initial image scaling
@@ -150,7 +167,9 @@ def make_gif(input_path: str, output_dir: str,
         # Create a list of transforms from the generator
         frame_transforms = transform_generator(i / frames, median_lum)
         # Apply those transforms to the image
-        transformed_frame = apply_transformations(im, frame_transforms)
+        transformed_frame = apply_transformations(
+            im, frame_transforms, progress_bar, input_path
+        )
         # Reverse the initial image scaling
         if line_count is not None:
             transformed_frame = transformed_frame.resize(
@@ -168,6 +187,8 @@ def make_gif(input_path: str, output_dir: str,
     out_path = os.path.join(output_dir, outname)
 
     # Call save() on the first frame, and add the rest in the args
+    if progress_bar:
+        progress_bar.set_description('{}: Saving'.format(out_path))
     frame_list[0].save(
         out_path,
         save_all=True,
@@ -179,11 +200,20 @@ def make_gif(input_path: str, output_dir: str,
     return out_path
 
 
+def optional_progress_bar(quiet_flag, *args, **kwargs):
+    """Conditionally return a tqdm progress par if `quiet_flag` is False."""
+    if quiet_flag:
+        return ExitStack()
+    else:
+        return tqdm(*args, **kwargs)
+
+
 def main():
     """Run the CLI."""
     from sys import exit as sys_exit
     from argparse import ArgumentParser
 
+    #region Parser Configuration # noqa: E265
     parser = ArgumentParser(
         'glitch_me',
         description='Add some glitch/distortion effects to images.'
@@ -218,38 +248,81 @@ def main():
         help='Include if you want the gif to play backward to the beginning \
         before looping. Doubles frame count.'
     )
+    #endregion # noqa: E265
 
     args = parser.parse_args()
-    output_paths = []
     if args.mode == 'still':
+        # Calculate how much work needs to be done
+        work = 0
         for input_path in glob.glob(args.input):
-            out_path = make_still(
-                input_path,
-                os.path.abspath(args.output_dir),
-                STATIC_TRANSFORM,
-                line_count=args.line_count
-            )
-            print(out_path)
+            im = Image.open(input_path)
+            size = im.size[0] * im.size[1] \
+                if not args.line_count else \
+                int((im.size[0] * (args.line_count / im.size[1])) *
+                    (im.size[1] * (args.line_count / im.size[1])))
+            transform_count = len(STATIC_TRANSFORM)
+            work += size * transform_count
+            im.close()
+
+        # Set up progress bar
+        with optional_progress_bar(
+            args.quiet,
+            total=work, unit='px', unit_scale=True, unit_divisor=1000,
+            leave=False
+        ) as pbar:
+            # Loop over globbed files
+            for input_path in glob.glob(args.input):
+                out_path = make_still(
+                    os.path.abspath(input_path),
+                    os.path.abspath(args.output_dir),
+                    STATIC_TRANSFORM,
+                    line_count=args.line_count,
+                    progress_bar=pbar if not args.quiet else None
+                )
+                if not args.quiet:
+                    pbar.clear()
+                    print(out_path)
+            pbar.close()
 
     elif args.mode == 'gif':
+        # Calculate how much work needs to be done
+        work = 0
         for input_path in glob.glob(args.input):
-            out_path = make_gif(
-                input_path,
-                os.path.abspath(args.output_dir),
-                GIF_TRANSFORM,
-                line_count=args.line_count,
-                frames=args.frames,
-                duration=args.duration,
-                bounce=args.bounce
-            )
-            print(out_path)
+            im = Image.open(input_path)
+            size = im.size[0] * im.size[1] \
+                if not args.line_count else \
+                int((im.size[0] * (args.line_count / im.size[1])) *
+                    (im.size[1] * (args.line_count / im.size[1])))
+            # Assuming constant number of transforms per frame
+            transform_count = len(GIF_TRANSFORM(0))
+            num_frames = args.frames
+            work += size * num_frames * transform_count
+            im.close()
+
+        # Set up progress bar
+        with optional_progress_bar(
+            args.quiet,
+            total=work, unit='px', unit_scale=True, unit_divisor=1000,
+            leave=False
+        ) as pbar:
+            for input_path in glob.glob(args.input):
+                out_path = make_gif(
+                    os.path.abspath(input_path),
+                    os.path.abspath(args.output_dir),
+                    GIF_TRANSFORM,
+                    line_count=args.line_count,
+                    frames=args.frames,
+                    duration=args.duration,
+                    bounce=args.bounce,
+                    progress_bar=pbar if not args.quiet else None
+                )
+                if not args.quiet:
+                    pbar.clear()
+                    print(out_path)
+            pbar.close()
     else:
         print('Mode "{mode}" not recognized.'.format(mode=args.mode))
         sys_exit(1)
-
-    if not args.quiet:
-        for path in output_paths:
-            print(path)
 
 
 if __name__ == '__main__':
