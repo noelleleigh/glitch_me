@@ -22,7 +22,8 @@ setup(
     keywords='glitch images art',
     py_modules=['glitch_me'],
     install_requires=[
-        'Pillow>=5'
+        'Pillow>=5',
+        'tqdm>=4'
     ],
     python_requires='~=3.6',
     entry_points={

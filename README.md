@@ -9,6 +9,7 @@ Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
 **Note:** This module may work with older versions of these, but compatibility is only guaranteed on these versions or newer.
 - [Python 3.6](https://www.python.org/)
 - [Pillow 5.x](https://pypi.python.org/pypi/Pillow/)
+- [tqdm 4.x](https://pypi.python.org/pypi/tqdm)
 
 
 ## tl; dr
