@@ -1,5 +1,2 @@
-Get-ChildItem .\readme_assets -Filter *_small.png |
-ForEach-Object{
-    py -m glitch_me still $_.FullName .\readme_assets;
-    py -m glitch_me gif $_.FullName .\readme_assets;
-}
+py -m glitch_me still ./readme_assets/*_small.png .\readme_assets;
+py -m glitch_me gif ./readme_assets/*_small.png .\readme_assets;
