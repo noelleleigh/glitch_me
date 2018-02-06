@@ -161,7 +161,7 @@ def make_gif(input_pattern: str, output_dir: str,
                 transformed_frame = transformed_frame.resize(
                     original_size, resample=Image.NEAREST
                 )
-            # Add the transformed image to the fram list
+            # Add the transformed image to the frame list
             frame_list.append(transformed_frame)
 
         if bounce:
