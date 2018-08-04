@@ -66,9 +66,8 @@ def exif_rotate(im):
         return im
 
 
-def apply_transformations(
-    im: ImageType, funcs: TransformationList, progress_bar=None, file=None
-) -> ImageType:
+def apply_transformations(im: ImageType, funcs: TransformationList,
+                          progress_bar=None, file=None) -> ImageType:
     """Take an Image and a list of functions and their args that return Images.
 
     Pass the output of the previous function into the next
