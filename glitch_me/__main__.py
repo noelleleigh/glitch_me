@@ -39,7 +39,7 @@ from .sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
 ImageType = Image.Image
 
 
-def exif_rotate(im):
+def exif_rotate(im: ImageType) -> ImageType:
     """Rotate an image based on its EXIF Orientation.
     Source: https://stackoverflow.com/a/26928142"""
     try:
@@ -230,7 +230,7 @@ def make_gif(input_path: str, output_dir: str,
     return out_path
 
 
-def optional_progress_bar(quiet_flag, *args, **kwargs):
+def optional_progress_bar(quiet_flag: bool, *args, **kwargs) -> tqdm:
     """Conditionally return a tqdm progress par if `quiet_flag` is False."""
     if quiet_flag:
         return ExitStack()
