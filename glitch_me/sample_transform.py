@@ -11,7 +11,7 @@ from math import pi, cos
 from PIL import Image, ImageOps
 from . import effects
 
-
+# List that defines the transformations applied to a static image.
 STATIC_TRANSFORM = [
     (effects.convert, {'mode': 'RGB'}),
     (effects.pixel_sort, {
@@ -43,7 +43,20 @@ def GIF_TRANSFORM(
     median_lum: The median luminance of the image (integer from 0 to 255),
         useful for controlling pixel sorting.
     """
+
+    """
+    # loop_progress
+    This variable goes from 0.0 -> 1.0 -> 0.0 as progress goes from 0.0 -> 1.0.
+    it's useful for creating seamless loops.
+    """
     loop_progress = -cos(2*pi*progress)/2 + 0.5
+
+    """
+    # lum_limit
+    Sometimes we want to adjust the luminance that's passed into the pixel
+    sorting function to get the right sorting parameters for our particular
+    image.
+    """
     lum_limit = median_lum + 0.5 * median_lum
     lum_limit = lum_limit if lum_limit <= 255 else 255
 
@@ -51,8 +64,8 @@ def GIF_TRANSFORM(
         (effects.convert, {'mode': 'RGB'}),
         (effects.pixel_sort, {
             'mask_function':
-            lambda val, factor=loop_progress, limit=lum_limit:
-                255 if val < limit * factor else 0,
+                lambda val, factor=loop_progress, limit=lum_limit:
+                    255 if val < limit * factor else 0,
             'reverse': True
         }),
         (effects.sin_wave_distortion, {
