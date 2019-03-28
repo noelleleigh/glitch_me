@@ -57,7 +57,7 @@ def GIF_TRANSFORM(
     sorting function to get the right sorting parameters for our particular
     image.
     """
-    lum_limit = median_lum + 0.5 * median_lum
+    lum_limit = median_lum + 0.5 * median_lum  # <- pixel sorting strength
     lum_limit = abs(lum_limit) if lum_limit <= 255 else 255
 
     return [
