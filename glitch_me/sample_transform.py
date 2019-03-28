@@ -58,7 +58,7 @@ def GIF_TRANSFORM(
     image.
     """
     lum_limit = median_lum + 0.5 * median_lum
-    lum_limit = lum_limit if lum_limit <= 255 else 255
+    lum_limit = abs(lum_limit) if lum_limit <= 255 else 255
 
     return [
         (effects.convert, {'mode': 'RGB'}),
