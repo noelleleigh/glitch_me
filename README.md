@@ -5,6 +5,17 @@ Python module to add some distortion/glitch effects to images.
 
 Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
 
+## Examples using the included transforms
+
+(*Click images for larger view*)
+
+| Original | Glitched | GIF'd |
+|----------|----------|-------|
+|![tokyo](readme_assets/tokyo_small.png) | ![tokyo glitched](readme_assets/tokyo_small_glitch.png) | ![tokyo glitched gif](readme_assets/tokyo_small_glitch.gif) |
+|![cafe](readme_assets/cafe_small.png) | ![cafe glitched](readme_assets/cafe_small_glitch.png) | ![cafe glitched gif](readme_assets/cafe_small_glitch.gif) |
+|![gate](readme_assets/gate_small.png) | ![gate glitched](readme_assets/gate_small_glitch.png) | ![gate glitched gif](readme_assets/gate_small_glitch.gif) |
+
+
 ## Dependencies
 **Note:** This module may work with older versions of these, but compatibility is only guaranteed on these versions or newer.
 - [Python 3.6](https://www.python.org/)
@@ -12,13 +23,14 @@ Inspired by the work of [DataErase](http://dataerase.tumblr.com/).
 - [tqdm 4.x](https://pypi.python.org/pypi/tqdm)
 
 
-## Download
+## Install
+
+### Download
 ```
-git clone https://github.com/noahleigh/glitch_me.git
+git clone https://github.com/noelleleigh/glitch_me.git
 ```
 
-## Install
-### Recommended Method
+### Recommended Install Method
 Add the `glitch_me` to your Python scripts available on your path and automatically install dependencies by running:
 ```
 pip install -e ./glitch_me
@@ -139,12 +151,3 @@ Say you were looking through [`effects.py`](glitch_me/effects.py) and decided yo
 6. Save your modified `sample_transform.py` try creating a GIF and admire your distorted, glitchy results!
 
 
-## Examples using the included transforms
-
-(*Click images for larger view*)
-
-| Original | Glitched | GIF'd |
-|----------|----------|-------|
-|![tokyo](readme_assets/tokyo_small.png) | ![tokyo glitched](readme_assets/tokyo_small_glitch.png) | ![tokyo glitched gif](readme_assets/tokyo_small_glitch.gif) |
-|![cafe](readme_assets/cafe_small.png) | ![cafe glitched](readme_assets/cafe_small_glitch.png) | ![cafe glitched gif](readme_assets/cafe_small_glitch.gif) |
-|![gate](readme_assets/gate_small.png) | ![gate glitched](readme_assets/gate_small_glitch.png) | ![gate glitched gif](readme_assets/gate_small_glitch.gif) |
