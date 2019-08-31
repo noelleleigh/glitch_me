@@ -283,6 +283,10 @@ def main():
     #endregion # noqa: E265
 
     args = parser.parse_args()
+
+    if not glob.glob(args.input):
+        raise FileNotFoundError('No files found that matched the input pattern "{}"'.format(args.input))
+
     if args.mode == 'still':
         # Calculate how much work needs to be done
         work = 0
