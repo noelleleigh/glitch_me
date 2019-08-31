@@ -57,8 +57,11 @@ def convert(im: ImageType, **kwargs) -> ImageType:
     See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
     for list of modes.
 
+    See https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
+    for the arguments to Image.convert.
+
     im: Pillow Image to be converted
-    mode: Image mode to be converted to
+    kwargs: Keyword arguments passed to Image.convert
     """
     return im.convert(**kwargs)
 
