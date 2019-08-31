@@ -15,7 +15,7 @@ except ImportError:
 
 setup(
     name='glitch_me',
-    version='1.1.0',
+    version='1.1.1',
     description='Python module to add distortion/glitch effects to images',
     long_description=readme,
     url='https://github.com/noelleleigh/glitch_me',
