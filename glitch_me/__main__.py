@@ -31,10 +31,12 @@ import glob
 import os
 from contextlib import ExitStack
 from typing import Callable, Sequence
-from PIL import Image, ImageStat, ExifTags
+
+from PIL import ExifTags, Image, ImageStat
 from tqdm import tqdm
+
 from .effects import TransformationList
-from .sample_transform import STATIC_TRANSFORM, GIF_TRANSFORM
+from .sample_transform import GIF_TRANSFORM, STATIC_TRANSFORM
 
 ImageType = Image.Image
 
