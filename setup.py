@@ -18,8 +18,8 @@ setup(
     version='1.1.0',
     description='Python module to add distortion/glitch effects to images',
     long_description=readme,
-    url='https://github.com/noahleigh/glitch_me',
-    author='Noah Leigh',
+    url='https://github.com/noelleleigh/glitch_me',
+    author='Noelle Leigh',
     classifiers=[
         'Intended Audience :: End Users/Desktop',
         'Topic :: Artistic Software',
