@@ -94,8 +94,8 @@ def make_still(input_path: str, output_dir: str,
     im = ImageOps.exif_transpose(im)
 
     # Handle initial image scaling
+    original_size = im.size
     if line_count is not None:
-        original_size = im.size
         scale_factor = line_count / im.size[1]
         scaled_size = tuple(
             map(lambda val: int(val * scale_factor), im.size)
@@ -156,8 +156,8 @@ def make_gif(input_path: str, output_dir: str,
     im = ImageOps.exif_transpose(im)
 
     # Handle initial image scaling
+    original_size = im.size
     if line_count is not None:
-        original_size = im.size
         scale_factor = line_count / im.size[1]
         scaled_size = tuple(
             map(lambda val: int(val * scale_factor), im.size)
