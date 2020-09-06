@@ -32,41 +32,13 @@ import os
 from contextlib import ExitStack
 from typing import Callable, Sequence
 
-from PIL import ExifTags, Image, ImageStat
+from PIL import ExifTags, Image, ImageOps, ImageStat
 from tqdm import tqdm
 
 from .effects import TransformationList
 from .sample_transform import GIF_TRANSFORM, STATIC_TRANSFORM
 
 ImageType = Image.Image
-
-
-def exif_rotate(im: ImageType) -> ImageType:
-    """Rotate an image based on its EXIF Orientation.
-    Source: https://stackoverflow.com/a/26928142"""
-    try:
-        for orientation in ExifTags.TAGS.keys():
-            if ExifTags.TAGS[orientation] == 'Orientation':
-                break
-        exif = dict(im._getexif().items())
-
-        if exif[orientation] == 3:
-            return im.rotate(180, expand=True)
-        elif exif[orientation] == 6:
-            return im.rotate(270, expand=True)
-        elif exif[orientation] == 8:
-            return im.rotate(90, expand=True)
-        else:
-            raise ValueError(
-                'Unknown orientation value {} in key {}'.format(
-                    orientation, exif[orientation]
-                )
-            )
-
-    except (AttributeError, KeyError, IndexError, ValueError):
-        # cases: image don't have getexif
-        return im
-
 
 def apply_transformations(im: ImageType, funcs: TransformationList,
                           progress_bar=None, file=None) -> ImageType:
@@ -119,7 +91,7 @@ def make_still(input_path: str, output_dir: str,
     if progress_bar:
         progress_bar.set_description('{}: Opening'.format(input_path))
     im = Image.open(input_path)
-    im = exif_rotate(im)
+    im = ImageOps.exif_transpose(im)
 
     # Handle initial image scaling
     if line_count is not None:
@@ -181,7 +153,7 @@ def make_gif(input_path: str, output_dir: str,
     if progress_bar:
         progress_bar.set_description('{}: Opening'.format(input_path))
     im = Image.open(input_path)
-    im = exif_rotate(im)
+    im = ImageOps.exif_transpose(im)
 
     # Handle initial image scaling
     if line_count is not None:
@@ -292,7 +264,7 @@ def main():
         work = 0
         for input_path in glob.glob(args.input):
             im = Image.open(input_path)
-            im = exif_rotate(im)
+            im = ImageOps.exif_transpose(im)
             size = im.size[0] * im.size[1] \
                 if not args.line_count else \
                 int((im.size[0] * (args.line_count / im.size[1])) *
@@ -326,7 +298,7 @@ def main():
         work = 0
         for input_path in glob.glob(args.input):
             im = Image.open(input_path)
-            im = exif_rotate(im)
+            im = ImageOps.exif_transpose(im)
             size = im.size[0] * im.size[1] \
                 if not args.line_count else \
                 int((im.size[0] * (args.line_count / im.size[1])) *
