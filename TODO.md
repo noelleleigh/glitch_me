@@ -1,0 +1,4 @@
+- Update to Python 3.11
+- Change effect functions to dataclasses?
+- Use `match` statments in arg parsing
+- Use `FileInput` and `Paths` in arg parsing
