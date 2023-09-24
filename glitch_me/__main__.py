@@ -32,7 +32,7 @@ import os
 from contextlib import ExitStack
 from typing import Callable, Sequence
 
-from PIL import ExifTags, Image, ImageOps, ImageStat
+from PIL import Image, ImageOps, ImageStat
 from tqdm import tqdm
 
 from .effects import TransformationList
