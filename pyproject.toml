@@ -1,3 +1,8 @@
+[project]
+name = "glitch_me"
+version = "3.0.0"
+dependencies = ["Pillow", "tqdm"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
