@@ -7,9 +7,7 @@ from typing import Sequence, Tuple, Callable
 from PIL import Image, ImageChops, ImageEnhance, ImageColor
 
 ImageType = Image.Image
-TransformationList = Sequence[
-    Tuple[Callable[[ImageType], ImageType], dict]
-]
+TransformationList = Sequence[Tuple[Callable[[ImageType], ImageType], dict]]
 
 
 def desample(im: ImageType, factor: Real) -> ImageType:
@@ -21,8 +19,7 @@ def desample(im: ImageType, factor: Real) -> ImageType:
         reduced. Example: image(24x15) -> desample factor 3 -> image(8x5)
     """
     resized = im.resize(
-        tuple(map(lambda val: int(val / factor), im.size)),
-        resample=Image.NEAREST
+        tuple(map(lambda val: int(val / factor), im.size)), resample=Image.NEAREST
     )
     return resized
 
@@ -36,8 +33,7 @@ def upscale(im: ImageType, factor: Real) -> ImageType:
         increased. Example: image(8x5) -> upscale factor 3 -> image(24x15)
     """
     resized = im.resize(
-        tuple(map(lambda val: int(val * factor), im.size)),
-        resample=Image.NEAREST
+        tuple(map(lambda val: int(val * factor), im.size)), resample=Image.NEAREST
     )
     return resized
 
@@ -94,9 +90,7 @@ def sharpen(im: ImageType, factor: int) -> ImageType:
     return sharpened
 
 
-def shift_corruption(
-    im: ImageType, offset_mag: int, coverage: float
-) -> ImageType:
+def shift_corruption(im: ImageType, offset_mag: int, coverage: float) -> ImageType:
     """Return an image with some rows randomly shifted left or right.
 
     Return an image with some pixel rows randomly shifted left or right by a
@@ -150,7 +144,7 @@ def walk_distortion(im: ImageType, max_step_length: int) -> ImageType:
 
 
 def sin_wave_distortion(
-    im: ImageType, mag: Real, freq: Real, phase: Real=0
+    im: ImageType, mag: Real, freq: Real, phase: Real = 0
 ) -> ImageType:
     """Return an image with rows shifted according to a sine curve.
 
@@ -163,9 +157,7 @@ def sin_wave_distortion(
     for ypos in range(im.size[1]):
         box = (0, ypos, waved.size[0], ypos + 1)
         line = waved.crop(box)
-        offset = int(
-            mag * math.sin(2 * math.pi * freq * (ypos / im.size[1]) + phase)
-        )
+        offset = int(mag * math.sin(2 * math.pi * freq * (ypos / im.size[1]) + phase))
         line = ImageChops.offset(line, offset, 0)
         waved.paste(line, box=box)
     return waved
@@ -179,7 +171,7 @@ def add_transparent_pixel(im: ImageType) -> ImageType:
 
     im: Pillow Image
     """
-    converted = im.convert(mode='RGBA')
+    converted = im.convert(mode="RGBA")
     top_left_pixel_val = list(converted.getpixel((0, 0)))
     top_left_pixel_val[-1] = 254
     converted.putpixel((0, 0), tuple(top_left_pixel_val))
@@ -201,7 +193,7 @@ def _get_grid_boxes(im: ImageType, rows: int, cols: int) -> ImageType:
             cell_x * cell_width,
             cell_y * cell_height,
             cell_x * cell_width + cell_width,
-            cell_y * cell_height + cell_height
+            cell_y * cell_height + cell_height,
         )
         for cell_y in range(rows)
         for cell_x in range(cols)
@@ -221,8 +213,8 @@ def swap_cells(im: ImageType, rows: int, cols: int, swaps: int) -> ImageType:
     grid_boxes = _get_grid_boxes(modified, rows, cols)
     chosen_boxes = random.choices(grid_boxes, k=swaps * 2)
     box_pairs = [
-        (chosen_boxes[2*i], chosen_boxes[(2*i)+1])
-        for i in range(int(len(chosen_boxes)/2))
+        (chosen_boxes[2 * i], chosen_boxes[(2 * i) + 1])
+        for i in range(int(len(chosen_boxes) / 2))
     ]
     for box1, box2 in box_pairs:
         cell1 = modified.crop(box1)
@@ -232,9 +224,7 @@ def swap_cells(im: ImageType, rows: int, cols: int, swaps: int) -> ImageType:
     return modified
 
 
-def make_noise_data(
-    length: int, min: int, max: int
-) -> Sequence[Tuple[int, int, int]]:
+def make_noise_data(length: int, min: int, max: int) -> Sequence[Tuple[int, int, int]]:
     """Return a list of RGB tuples of random greyscale values.
 
     length: The length of the list
@@ -242,14 +232,12 @@ def make_noise_data(
     max: The brightest luminosity value (out of 100)
     """
     return [
-        ImageColor.getrgb('hsl(0, 0%, {}%)'.format(random.randint(min, max)))
+        ImageColor.getrgb("hsl(0, 0%, {}%)".format(random.randint(min, max)))
         for _ in range(length)
     ]
 
 
-def add_noise_cells(
-    im: ImageType, rows: int, cols: int, cells: int
-) -> ImageType:
+def add_noise_cells(im: ImageType, rows: int, cols: int, cells: int) -> ImageType:
     """Return an image with randomly placed cells of noise.
 
     im: Pillow Image
@@ -261,7 +249,7 @@ def add_noise_cells(
     grid_boxes = _get_grid_boxes(modified, rows, cols)
     chosen_boxes = random.choices(grid_boxes, k=cells)
     for box in chosen_boxes:
-        noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
+        noise_cell = Image.new(modified.mode, (box[2] - box[0], box[3] - box[1]))
         noise_cell.putdata(
             make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75)
         )
@@ -277,13 +265,13 @@ def add_noise_bands(im: ImageType, count: int, thickness: int) -> ImageType:
     count: The number of bands of noise
     thickness: Maximum thickness of the bands
     """
-    modified = im.convert('RGBA')
+    modified = im.convert("RGBA")
     boxes = [
         (0, ypos, im.size[0], ypos + random.randint(1, thickness))
         for ypos in random.choices(range(im.size[1]), k=count)
     ]
     for box in boxes:
-        noise_cell = Image.new(modified.mode, (box[2]-box[0], box[3]-box[1]))
+        noise_cell = Image.new(modified.mode, (box[2] - box[0], box[3] - box[1]))
         noise_cell.putdata(
             make_noise_data(noise_cell.size[0] * noise_cell.size[1], 0, 75)
         )
@@ -302,14 +290,11 @@ def _split_data(
     data: Sequence[Tuple[int, ...]], width: int
 ) -> Sequence[Sequence[Tuple[int, ...]]]:
     height = int(len(data) / width)
-    return [
-        data[(row * width):(row * width + width)]
-        for row in range(height)
-    ]
+    return [data[(row * width) : (row * width + width)] for row in range(height)]
 
 
 def pixel_sort(
-    im: ImageType, mask_function: Callable[[int], int], reverse: bool=False
+    im: ImageType, mask_function: Callable[[int], int], reverse: bool = False
 ) -> ImageType:
     """Return a horizontally pixel-sorted Image based on the mask function.
 
@@ -323,7 +308,7 @@ def pixel_sort(
     reverse: sort pixels in reverse order if True
     """
     # Create a black-and-white mask to determine which pixels will be sorted
-    interval_mask = im.convert('L').point(mask_function)
+    interval_mask = im.convert("L").point(mask_function)
     interval_mask_data = list(interval_mask.getdata())
     interval_mask_row_data = _split_data(interval_mask_data, im.size[0])
 
@@ -347,8 +332,7 @@ def pixel_sort(
                 continue
             # The pixel is (black) and (not the first in the row) and (the
             # previous pixel was white) -> end box
-            if (pixel == 0 and pixel_index > 0 and
-                    row_data[pixel_index - 1] == 255):
+            if pixel == 0 and pixel_index > 0 and row_data[pixel_index - 1] == 255:
                 end = (pixel_index, row_index + 1)
                 interval_boxes.append((start[0], start[1], end[0], end[1]))
                 continue
@@ -359,9 +343,7 @@ def pixel_sort(
         cropped_interval = modified.crop(box)
         interval_data = list(cropped_interval.getdata())
         # sort them by luminance
-        cropped_interval.putdata(
-            sorted(interval_data, key=_get_lum, reverse=reverse)
-        )
+        cropped_interval.putdata(sorted(interval_data, key=_get_lum, reverse=reverse))
         # and paste them back onto the image!
         modified.paste(cropped_interval, box=(box[0], box[1]))
 
@@ -385,12 +367,10 @@ def low_res_blocks(
     for box in chosen_boxes:
         low_res_cell = modified.crop(box)
         low_res_cell = low_res_cell.resize(
-            tuple(map(lambda val: int(val / factor), low_res_cell.size)),
-            Image.NEAREST
+            tuple(map(lambda val: int(val / factor), low_res_cell.size)), Image.NEAREST
         )
         low_res_cell = low_res_cell.resize(
-            tuple(map(lambda val: int(val * factor), low_res_cell.size)),
-            Image.NEAREST
+            tuple(map(lambda val: int(val * factor), low_res_cell.size)), Image.NEAREST
         )
         modified.paste(low_res_cell, (box[0], box[1]))
 

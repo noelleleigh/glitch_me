@@ -40,8 +40,10 @@ from .sample_transform import GIF_TRANSFORM, STATIC_TRANSFORM
 
 ImageType = Image.Image
 
-def apply_transformations(im: ImageType, funcs: TransformationList,
-                          progress_bar=None, file=None) -> ImageType:
+
+def apply_transformations(
+    im: ImageType, funcs: TransformationList, progress_bar=None, file=None
+) -> ImageType:
     """Take an Image and a list of functions and their args that return Images.
 
     Pass the output of the previous function into the next
@@ -59,16 +61,20 @@ def apply_transformations(im: ImageType, funcs: TransformationList,
     """
     transformed = im
     for func, args in funcs:
-        if (progress_bar):
+        if progress_bar:
             progress_bar.update(transformed.size[0] * transformed.size[1])
-            progress_bar.set_description('{}: {}'.format(file, func.__name__))
+            progress_bar.set_description("{}: {}".format(file, func.__name__))
         transformed = func(transformed, **args)
     return transformed
 
 
-def make_still(input_path: str, output_dir: str,
-               transforms: TransformationList,
-               line_count: int=None, progress_bar=None) -> Sequence[str]:
+def make_still(
+    input_path: str,
+    output_dir: str,
+    transforms: TransformationList,
+    line_count: int = None,
+    progress_bar=None,
+) -> Sequence[str]:
     """Make transformed image(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -89,7 +95,7 @@ def make_still(input_path: str, output_dir: str,
     progress_bar: A tqdm progress bar.
     """
     if progress_bar:
-        progress_bar.set_description('{}: Opening'.format(input_path))
+        progress_bar.set_description("{}: Opening".format(input_path))
     im = Image.open(input_path)
     im = ImageOps.exif_transpose(im)
 
@@ -97,9 +103,7 @@ def make_still(input_path: str, output_dir: str,
     original_size = im.size
     if line_count is not None:
         scale_factor = line_count / im.size[1]
-        scaled_size = tuple(
-            map(lambda val: int(val * scale_factor), im.size)
-        )
+        scaled_size = tuple(map(lambda val: int(val * scale_factor), im.size))
         im = im.resize(scaled_size, resample=Image.NEAREST)
 
     # Apply the transforms to the image
@@ -111,20 +115,26 @@ def make_still(input_path: str, output_dir: str,
 
     # Save the result and append the path to output_paths
     basename = os.path.basename(input_path)
-    outname = '{}_glitch.png'.format(os.path.splitext(basename)[0])
+    outname = "{}_glitch.png".format(os.path.splitext(basename)[0])
     out_path = os.path.join(output_dir, outname)
     if progress_bar:
-        progress_bar.set_description('{}: Saving'.format(out_path))
+        progress_bar.set_description("{}: Saving".format(out_path))
     output.save(out_path)
     im.close()
 
     return out_path
 
 
-def make_gif(input_path: str, output_dir: str,
-             transform_generator: Callable[[int, int], TransformationList],
-             line_count: int, frames: int, duration: int,
-             bounce: bool, progress_bar=None) -> Sequence[str]:
+def make_gif(
+    input_path: str,
+    output_dir: str,
+    transform_generator: Callable[[int, int], TransformationList],
+    line_count: int,
+    frames: int,
+    duration: int,
+    bounce: bool,
+    progress_bar=None,
+) -> Sequence[str]:
     """Make transformed gif(s) from a list of functions.
 
     Select one or more image files from a glob pattern, apply a list of
@@ -151,7 +161,7 @@ def make_gif(input_path: str, output_dir: str,
     progress_bar: A tqdm progress bar
     """
     if progress_bar:
-        progress_bar.set_description('{}: Opening'.format(input_path))
+        progress_bar.set_description("{}: Opening".format(input_path))
     im = Image.open(input_path)
     im = ImageOps.exif_transpose(im)
 
@@ -159,12 +169,10 @@ def make_gif(input_path: str, output_dir: str,
     original_size = im.size
     if line_count is not None:
         scale_factor = line_count / im.size[1]
-        scaled_size = tuple(
-            map(lambda val: int(val * scale_factor), im.size)
-        )
+        scaled_size = tuple(map(lambda val: int(val * scale_factor), im.size))
         im = im.resize(scaled_size, resample=Image.NEAREST)
 
-    median_lum = ImageStat.Stat(im.convert('L')).median[0]
+    median_lum = ImageStat.Stat(im.convert("L")).median[0]
     frame_list = []
     for i in range(frames):
         # Create a list of transforms from the generator
@@ -186,18 +194,14 @@ def make_gif(input_path: str, output_dir: str,
 
     # Save the result and append the path to output_paths
     basename = os.path.basename(input_path)
-    outname = '{}_glitch.gif'.format(os.path.splitext(basename)[0])
+    outname = "{}_glitch.gif".format(os.path.splitext(basename)[0])
     out_path = os.path.join(output_dir, outname)
 
     # Call save() on the first frame, and add the rest in the args
     if progress_bar:
-        progress_bar.set_description('{}: Saving'.format(out_path))
+        progress_bar.set_description("{}: Saving".format(out_path))
     frame_list[0].save(
-        out_path,
-        save_all=True,
-        append_images=frame_list[1:],
-        duration=duration,
-        loop=0
+        out_path, save_all=True, append_images=frame_list[1:], duration=duration, loop=0
     )
     im.close()
 
@@ -217,58 +221,78 @@ def main():
     from sys import exit as sys_exit
     from argparse import ArgumentParser
 
-    #region Parser Configuration # noqa: E265
+    # region Parser Configuration # noqa: E265
     parser = ArgumentParser(
-        'glitch_me',
-        description='Add some glitch/distortion effects to images.'
+        "glitch_me", description="Add some glitch/distortion effects to images."
     )
     parser.add_argument(
-        'mode', choices=['still', 'gif'],
-        help='Make a still glitched image, or a progressive glitch animation.'
+        "mode",
+        choices=["still", "gif"],
+        help="Make a still glitched image, or a progressive glitch animation.",
     )
-    parser.add_argument('input', help='Input image path glob pattern')
+    parser.add_argument("input", help="Input image path glob pattern")
     parser.add_argument(
-        'output_dir', help='Path to output directory  (files will be saved \
-        with "_glitch" suffix)'
-    )
-    parser.add_argument(
-        '-q', '--quiet', action='store_true', default=False,
-        help='Include to not print the paths to the output image(s).'
+        "output_dir",
+        help='Path to output directory  (files will be saved \
+        with "_glitch" suffix)',
     )
     parser.add_argument(
-        '--line_count', type=int,
-        help='The vertical resolution you want the glitches to operate at'
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Include to not print the paths to the output image(s).",
     )
     parser.add_argument(
-        '-f', '--frames', type=int, default=20,
-        help='The number of frames you want in your GIF (default: 20)'
+        "--line_count",
+        type=int,
+        help="The vertical resolution you want the glitches to operate at",
     )
     parser.add_argument(
-        '-d', '--duration', type=int, default=100,
-        help='The delay between frames in ms (default: 100)'
+        "-f",
+        "--frames",
+        type=int,
+        default=20,
+        help="The number of frames you want in your GIF (default: 20)",
     )
     parser.add_argument(
-        '-b', '--bounce', action='store_true', default=False,
-        help='Include if you want the gif to play backward to the beginning \
-        before looping. Doubles frame count.'
+        "-d",
+        "--duration",
+        type=int,
+        default=100,
+        help="The delay between frames in ms (default: 100)",
     )
-    #endregion # noqa: E265
+    parser.add_argument(
+        "-b",
+        "--bounce",
+        action="store_true",
+        default=False,
+        help="Include if you want the gif to play backward to the beginning \
+        before looping. Doubles frame count.",
+    )
+    # endregion # noqa: E265
 
     args = parser.parse_args()
 
     if not glob.glob(args.input):
-        raise FileNotFoundError('No files found that matched the input pattern "{}"'.format(args.input))
+        raise FileNotFoundError(
+            'No files found that matched the input pattern "{}"'.format(args.input)
+        )
 
-    if args.mode == 'still':
+    if args.mode == "still":
         # Calculate how much work needs to be done
         work = 0
         for input_path in glob.glob(args.input):
             im = Image.open(input_path)
             im = ImageOps.exif_transpose(im)
-            size = im.size[0] * im.size[1] \
-                if not args.line_count else \
-                int((im.size[0] * (args.line_count / im.size[1])) *
-                    (im.size[1] * (args.line_count / im.size[1])))
+            size = (
+                im.size[0] * im.size[1]
+                if not args.line_count
+                else int(
+                    (im.size[0] * (args.line_count / im.size[1]))
+                    * (im.size[1] * (args.line_count / im.size[1]))
+                )
+            )
             transform_count = len(STATIC_TRANSFORM)
             work += size * transform_count
             im.close()
@@ -276,8 +300,11 @@ def main():
         # Set up progress bar
         with optional_progress_bar(
             args.quiet,
-            total=work, unit='px', unit_scale=True, unit_divisor=1000,
-            leave=False
+            total=work,
+            unit="px",
+            unit_scale=True,
+            unit_divisor=1000,
+            leave=False,
         ) as pbar:
             # Loop over globbed files
             for input_path in glob.glob(args.input):
@@ -286,23 +313,27 @@ def main():
                     os.path.abspath(args.output_dir),
                     STATIC_TRANSFORM,
                     line_count=args.line_count,
-                    progress_bar=pbar if not args.quiet else None
+                    progress_bar=pbar if not args.quiet else None,
                 )
                 if not args.quiet:
                     pbar.clear()
                     print(out_path)
             pbar.close()
 
-    elif args.mode == 'gif':
+    elif args.mode == "gif":
         # Calculate how much work needs to be done
         work = 0
         for input_path in glob.glob(args.input):
             im = Image.open(input_path)
             im = ImageOps.exif_transpose(im)
-            size = im.size[0] * im.size[1] \
-                if not args.line_count else \
-                int((im.size[0] * (args.line_count / im.size[1])) *
-                    (im.size[1] * (args.line_count / im.size[1])))
+            size = (
+                im.size[0] * im.size[1]
+                if not args.line_count
+                else int(
+                    (im.size[0] * (args.line_count / im.size[1]))
+                    * (im.size[1] * (args.line_count / im.size[1]))
+                )
+            )
             # Assuming constant number of transforms per frame
             transform_count = len(GIF_TRANSFORM(0))
             num_frames = args.frames
@@ -312,8 +343,11 @@ def main():
         # Set up progress bar
         with optional_progress_bar(
             args.quiet,
-            total=work, unit='px', unit_scale=True, unit_divisor=1000,
-            leave=False
+            total=work,
+            unit="px",
+            unit_scale=True,
+            unit_divisor=1000,
+            leave=False,
         ) as pbar:
             for input_path in glob.glob(args.input):
                 out_path = make_gif(
@@ -324,7 +358,7 @@ def main():
                     frames=args.frames,
                     duration=args.duration,
                     bounce=args.bounce,
-                    progress_bar=pbar if not args.quiet else None
+                    progress_bar=pbar if not args.quiet else None,
                 )
                 if not args.quiet:
                     pbar.clear()
@@ -335,5 +369,5 @@ def main():
         sys_exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
