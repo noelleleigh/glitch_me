@@ -1,2 +1,4 @@
 [flake8]
-exclude = __init__.py
+exclude =
+    .venv,
+    dist
