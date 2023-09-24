@@ -37,7 +37,7 @@ setup(
         'Pillow>=7',
         'tqdm>=4'
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     entry_points={
         'console_scripts': [
             'glitch_me=glitch_me.__main__:main',
