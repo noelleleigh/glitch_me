@@ -1,10 +1,11 @@
 #! python3
 """Collection of pure functions for transforming Pillow Images."""
-import random
 import math
+import random
 from numbers import Real
-from typing import Sequence, Tuple, Callable
-from PIL import Image, ImageChops, ImageEnhance, ImageColor
+from typing import Callable, Sequence, Tuple
+
+from PIL import Image, ImageChops, ImageColor, ImageEnhance
 
 ImageType = Image.Image
 TransformationList = Sequence[Tuple[Callable[[ImageType], ImageType], dict]]

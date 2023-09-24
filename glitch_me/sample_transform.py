@@ -7,8 +7,10 @@ STATIC_TRANSFORM: List of 2-tuples:
 
 GIF_TRANSFORM: Function that returns a list in the form of STATIC_TRANSFORM
 """
-from math import pi, cos
+from math import cos, pi
+
 from PIL import Image, ImageOps
+
 from . import effects
 
 # List that defines the transformations applied to a static image.

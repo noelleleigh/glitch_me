@@ -218,8 +218,8 @@ def optional_progress_bar(quiet_flag: bool, *args, **kwargs) -> tqdm:
 
 def main():
     """Run the CLI."""
-    from sys import exit as sys_exit
     from argparse import ArgumentParser
+    from sys import exit as sys_exit
 
     # region Parser Configuration # noqa: E265
     parser = ArgumentParser(
