@@ -1,11 +1,32 @@
 [project]
 name = "glitch_me"
 version = "3.0.0"
+description = "Python module to add distortion/glitch effects to images"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Noelle Leigh" }]
+keywords = ["glitch", "images", "art"]
+classifiers = [
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3 :: Only",
+]
 dependencies = ["Pillow", "tqdm"]
+
+[project.scripts]
+glitch_me = "glitch_me.__main__:main"
+
+[project.urls]
+Homepage = "https://noelle.dev/software/glitch_me/"
+Repository = "https://github.com/noelleleigh/glitch_me"
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["glitch_me"]
+[tool.setuptools]
+packages = ["glitch_me"]
