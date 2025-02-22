@@ -1,3 +1,7 @@
+Repo has been moved to <https://git.sr.ht/~noelle/glitch_me>.
+
+---
+
 # glitch_me
 ![Screencap of a Shinto gate from the anime movie Your Name that has aesthetically pleasing visual distortions](readme_assets/gate_small_glitch.png)
 
